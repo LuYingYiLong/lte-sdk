@@ -1,0 +1,26 @@
+* text=auto eol=lf
+*.ps1 text eol=crlf
+*.dll binary
+*.pdb binary
+*.lib binary
+*.exp binary
+*.gdextension text eol=lf
+*.cfg text eol=lf
+*.gd text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+
+# Release archive: exclude development files
+/.godot export-ignore
+/dev export-ignore
+/tests export-ignore
+/.github export-ignore
+/planned_archive export-ignore
+/docs_draft export-ignore
+/.vscode export-ignore
+/.claude export-ignore
+/README.dev.md export-ignore
+/CHANGELOG.internal.md export-ignore
+/.gitignore export-ignore
+/.gitattributes export-ignore
+/.editorconfig export-ignore

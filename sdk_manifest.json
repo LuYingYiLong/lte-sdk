@@ -1,0 +1,9 @@
+{
+  "sdk_id": "lte_sdk",
+  "sdk_name": "LTE SDK",
+  "sdk_version": "0.1.0",
+  "godot_version": "4.6",
+  "lteapi_source": "release",
+  "lteapi_addon_path": "res://addons/lteapi",
+  "plugin_template_path": "res://addons/lte_plugin_template"
+}
