@@ -1,7 +1,7 @@
 @tool
 extends EditorPlugin
 
-const ExampleLTEPlugin: GDScript = preload("res://addons/lte_plugin_template/scripts/example_lte_plugin.gd")
+const ExampleLTEPlugin: GDScript = preload("res://addons/{{plugin_id}}/scripts/example_lte_plugin.gd")
 
 var plugin_instance: RefCounted
 

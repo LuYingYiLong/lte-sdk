@@ -1,6 +1,7 @@
 param(
     [string]$Output = "release/lte-sdk.zip",
-    [string]$Version = ""
+    [string]$Version = "",
+    [switch]$AllowDirty
 )
 
 $ErrorActionPreference = "Stop"
@@ -23,6 +24,17 @@ if (Test-Path -LiteralPath $OutputPath) {
 
 Push-Location $SdkRoot
 try {
+    # Check for uncommitted changes — git archive only includes committed content
+    $dirty = git status --porcelain
+    if ($dirty) {
+        Write-Warning "Working tree has uncommitted changes — these will NOT be included in the archive:"
+        Write-Host $dirty
+        Write-Warning "Commit your changes first, or use -AllowDirty to override."
+        if (!$AllowDirty) {
+            throw "Release aborted: working tree is not clean."
+        }
+    }
+
     # Use git archive to respect .gitattributes export-ignore
     git archive --format zip --output $OutputPath HEAD
     Write-Host "Packed LTE-SDK release: $OutputPath"

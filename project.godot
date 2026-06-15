@@ -13,11 +13,11 @@ config_version=5
 config/name="LTE-SDK"
 config/version="0.1.0"
 config/features=PackedStringArray("4.6", "Mobile")
-config/icon="uid://bmlquhkrqchb1"
+config/icon="res://icon.svg"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/lteapi/plugin.cfg", "res://addons/lte_plugin_template/plugin.cfg")
+enabled=PackedStringArray("res://addons/lteapi/plugin.cfg")
 
 [physics]
 

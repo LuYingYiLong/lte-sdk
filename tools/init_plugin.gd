@@ -156,6 +156,11 @@ func _init_plugin() -> bool:
 
 	print("Initializing plugin '%s'..." % _plugin_id)
 
+	# If forcing and target already exists, clean it first to avoid stale residue
+	if _force and DirAccess.dir_exists_absolute(target_path):
+		print("Removing existing target directory (--force)...")
+		_remove_directory(target_path)
+
 	# Copy template directory
 	var err: Error = _copy_directory(template_path, target_path)
 	if err != OK:
