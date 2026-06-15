@@ -1,4 +1,4 @@
-extends Object
+extends SceneTree
 ## LTE-SDK plugin initialization CLI.
 ##
 ## Usage:
@@ -9,7 +9,7 @@ extends Object
 
 const RESERVED_IDS: PackedStringArray = ["lteapi", "addons", "template", "lte_sdk", "godot", "engine", "editor", "main", "root", "scene"]
 const PLACEHOLDERS: Array[String] = ["{{plugin_id}}", "{{plugin_name}}", "{{author}}", "{{description}}", "{{lteapi_version}}", "{{created_date}}"]
-const TEXT_EXTENSIONS: PackedStringArray = [".gd", ".cfg", ".godot", ".json", ".md", ".txt"]
+const TEXT_EXTENSIONS: PackedStringArray = ["gd", "cfg", "godot", "json", "md", "txt"]
 
 var _args: Dictionary = {}
 var _force: bool = false
@@ -20,7 +20,7 @@ var _author: String = ""
 var _description: String = ""
 
 
-func _init() -> void:
+func _initialize() -> void:
 	_parse_args()
 	if _args.has("help"):
 		_print_help()
@@ -377,6 +377,4 @@ func _print_success() -> void:
 
 
 func _quit(exit_code: int) -> void:
-	var scene_tree: SceneTree = Engine.get_main_loop() as SceneTree
-	if scene_tree:
-		scene_tree.quit(exit_code)
+	quit(exit_code)

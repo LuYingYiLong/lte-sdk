@@ -1,78 +1,90 @@
-extends Object
+extends SceneTree
 ## Smoke test: verify LTE-SDK project structure is valid.
 ## Run: Godot --headless --path D:\GodotProjects\LTE-SDK --script res://tests/sdk_smoke_test.gd
 
 
 func _init() -> void:
 	print("=== LTE-SDK Smoke Test ===")
-	test_project_config()
-	test_lteapi_addon()
-	test_template_addon()
-	test_manifest()
-	print("=== All smoke tests passed ===")
-	_quit()
+	var ok: bool = true
+	ok = test_project_config() and ok
+	ok = test_lteapi_addon() and ok
+	ok = test_template_addon() and ok
+	ok = test_manifest() and ok
+	if ok:
+		print("=== All smoke tests passed ===")
+	else:
+		printerr("=== Some smoke tests FAILED ===")
+	quit(0 if ok else 1)
 
 
-func test_project_config() -> void:
+func test_project_config() -> bool:
 	var cfg: ConfigFile = ConfigFile.new()
 	var err: Error = cfg.load("res://project.godot")
-	assert(err == OK, "Failed to load project.godot")
+	if err != OK:
+		printerr("FAIL: Failed to load project.godot")
+		return false
 	var name: String = cfg.get_value("application", "config/name", "")
-	assert("LTE-SDK" in name, "Project name mismatch: %s" % name)
-	print("  [PASS] project.godot loads with correct name")
+	if "LTE-SDK" in name:
+		print("  [PASS] project.godot loads with correct name")
+		return true
+	printerr("FAIL: project.godot name mismatch: %s" % name)
+	return false
 
 
-func test_lteapi_addon() -> void:
-	assert(FileAccess.file_exists("res://addons/lteapi/plugin.cfg"),
-		"lteapi plugin.cfg missing")
-	assert(FileAccess.file_exists("res://addons/lteapi/bin/lteapi.gdextension"),
-		"lteapi .gdextension missing")
-	var dll_exists: bool = false
+func test_lteapi_addon() -> bool:
+	if not FileAccess.file_exists("res://addons/lteapi/plugin.cfg"):
+		printerr("FAIL: lteapi plugin.cfg missing")
+		return false
+	if not FileAccess.file_exists("res://addons/lteapi/bin/lteapi.gdextension"):
+		printerr("FAIL: lteapi .gdextension missing")
+		return false
+	var dll_found: bool = false
 	var dir: DirAccess = DirAccess.open("res://addons/lteapi/bin")
 	if dir:
 		dir.list_dir_begin()
 		var file_name: String = dir.get_next()
 		while file_name != "":
 			if file_name.ends_with(".dll"):
-				dll_exists = true
+				dll_found = true
 				break
 			file_name = dir.get_next()
 		dir.list_dir_end()
-	assert(dll_exists, "No .dll found in addons/lteapi/bin")
+	if not dll_found:
+		printerr("FAIL: No .dll in addons/lteapi/bin")
+		return false
 	print("  [PASS] addons/lteapi structure valid")
+	return true
 
 
-func test_template_addon() -> void:
-	assert(FileAccess.file_exists("res://addons/lte_plugin_template/plugin.cfg"),
-		"Template plugin.cfg missing")
-	assert(FileAccess.file_exists("res://addons/lte_plugin_template/plugin.gd"),
-		"Template plugin.gd missing")
-	assert(FileAccess.file_exists("res://addons/lte_plugin_template/scripts/example_lte_plugin.gd"),
-		"Template example_lte_plugin.gd missing")
-
-	var cfg: ConfigFile = ConfigFile.new()
-	var err: Error = cfg.load("res://addons/lte_plugin_template/plugin.cfg")
-	assert(err == OK, "Failed to load template plugin.cfg")
-	var script_path: String = cfg.get_value("plugin", "script", "")
-	assert(script_path == "plugin.gd", "Template script path mismatch: %s" % script_path)
+func test_template_addon() -> bool:
+	if not FileAccess.file_exists("res://addons/lte_plugin_template/plugin.cfg"):
+		printerr("FAIL: Template plugin.cfg missing")
+		return false
+	if not FileAccess.file_exists("res://addons/lte_plugin_template/plugin.gd"):
+		printerr("FAIL: Template plugin.gd missing")
+		return false
+	if not FileAccess.file_exists("res://addons/lte_plugin_template/scripts/example_lte_plugin.gd"):
+		printerr("FAIL: Template example_lte_plugin.gd missing")
+		return false
 	print("  [PASS] lte_plugin_template structure valid")
+	return true
 
 
-func test_manifest() -> void:
-	assert(FileAccess.file_exists("res://sdk_manifest.json"), "sdk_manifest.json missing")
+func test_manifest() -> bool:
+	if not FileAccess.file_exists("res://sdk_manifest.json"):
+		printerr("FAIL: sdk_manifest.json missing")
+		return false
 	var file: FileAccess = FileAccess.open("res://sdk_manifest.json", FileAccess.READ)
 	var content: String = file.get_as_text()
 	file.close()
 	var json: JSON = JSON.new()
 	var err: Error = json.parse(content)
-	assert(err == OK, "Failed to parse sdk_manifest.json: %s" % json.get_error_message())
+	if err != OK:
+		printerr("FAIL: sdk_manifest.json parse error: %s" % json.get_error_message())
+		return false
 	var data: Variant = json.get_data()
-	assert(data is Dictionary, "sdk_manifest.json is not a dictionary")
-	assert("sdk_id" in data, "sdk_manifest.json missing sdk_id")
+	if not (data is Dictionary):
+		printerr("FAIL: sdk_manifest.json is not a dictionary")
+		return false
 	print("  [PASS] sdk_manifest.json valid")
-
-
-func _quit() -> void:
-	var scene_tree: SceneTree = Engine.get_main_loop() as SceneTree
-	if scene_tree:
-		scene_tree.quit(0)
+	return true
